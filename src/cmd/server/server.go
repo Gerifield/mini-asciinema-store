@@ -23,7 +23,6 @@ func main()  {
 	srv := ministore.New(*uploadPath, *serverBaseURL)
 
 	var err error
-
 	if *https {
 		err = http.ListenAndServeTLS(*listenAddr, *httpsCert, *httpsPrivateKey, srv.Routes())
 	} else {
