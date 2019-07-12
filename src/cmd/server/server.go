@@ -2,10 +2,11 @@ package main
 
 import (
 	"flag"
-	"github.com/gerifield/mini-asciinema-store/src/mini-store"
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/gerifield/mini-asciinema-store/src/mini-store"
 )
 
 
