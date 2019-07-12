@@ -1,24 +1,40 @@
-package main
+package ministore
 
 import (
-	"flag"
-	"io"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
+	"io"
+	"net/http"
+	"os"
 )
 
-const uploadPath = "uploads/"
-const serverBaseURL = "http://127.0.0.1:8080"
+// Server .
+type Server struct {
+	uploadPath string
+	baseURL string
+}
 
-func uploadHandler(w http.ResponseWriter, r *http.Request) {
+// New mini-store server init
+func New(uploadPath string, baseURL string) *Server {
+	return &Server{
+		uploadPath: uploadPath,
+		baseURL:    baseURL,
+	}
+}
+
+// Routes returns the router
+func (s *Server) Routes() http.Handler{
+	mux := chi.NewRouter()
+	mux.Post("/api/asciicasts", s.uploadHandler)
+	mux.Get("/a/{id}", s.getHandler)
+	return mux
+}
+
+func (s *Server) uploadHandler(w http.ResponseWriter, r *http.Request) {
 	//w.Header().Set("Content-Type", "application/json")
 	id := uuid.New()
 
-	f, err := os.Create(uploadPath+id.String())
+	f, err := os.Create(s.uploadPath+id.String())
 	if err != nil {
 		http.Error(w, "file create failed", http.StatusInternalServerError)
 		return
@@ -41,10 +57,10 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//fmt.Println(string(b))
-	w.Write([]byte(serverBaseURL+"/a/"+id.String()))
+	w.Write([]byte(s.baseURL+"/a/"+id.String()))
 }
 
-func getHandler(w http.ResponseWriter, r *http.Request) {
+func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
 		http.Error(w, "missing id",http.StatusBadRequest)
@@ -57,7 +73,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := os.Open(uploadPath+id)
+	f, err := os.Open(s.uploadPath+id)
 	if err != nil {
 		http.Error(w, "file not found", http.StatusNotFound)
 		return
@@ -68,20 +84,5 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "file write error", http.StatusInternalServerError)
 		return
-	}
-}
-
-func main()  {
-	listenAddr := flag.String("listenAddr", ":8080", "HTTP listening address")
-	flag.Parse()
-
-	mux := chi.NewRouter()
-	mux.Post("/api/asciicasts", uploadHandler)
-	mux.Get("/a/{id}", getHandler)
-
-	err := http.ListenAndServe(*listenAddr, mux)
-	if err != nil {
-		log.Println(err)
-		os.Exit(1)
 	}
 }
