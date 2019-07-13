@@ -3,7 +3,6 @@ package ministore
 import (
 	"io"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
@@ -12,27 +11,26 @@ import (
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
-		http.Error(w, "missing id",http.StatusBadRequest)
+		respondErr(nil, w, "missing id", http.StatusBadRequest)
 		return
 	}
 
 	_, err := uuid.Parse(id)
 	if err != nil {
-		http.Error(w, "invalid id",http.StatusBadRequest)
+		respondErr(err, w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
-	f, err := os.Open(s.uploadPath+id)
+	br, err := s.uploadBucket.NewReader(r.Context(), id, nil)
 	if err != nil {
-		http.Error(w, "file not found", http.StatusNotFound)
+		respondErr(err, w, "file not found", http.StatusNotFound)
 		return
 	}
-	defer f.Close()
+	defer br.Close()
 
-	_, err = io.Copy(w, f)
+	_, err = io.Copy(w, br)
 	if err != nil {
-		http.Error(w, "file write error", http.StatusInternalServerError)
+		respondErr(err, w, "file write error", http.StatusInternalServerError)
 		return
 	}
 }
-
