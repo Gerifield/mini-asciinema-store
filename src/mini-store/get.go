@@ -10,11 +10,6 @@ import (
 
 func (s *Server) getHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	if id == "" {
-		respondErr(nil, w, "missing id", http.StatusBadRequest)
-		return
-	}
-
 	_, err := uuid.Parse(id)
 	if err != nil {
 		respondErr(err, w, "invalid id", http.StatusBadRequest)
