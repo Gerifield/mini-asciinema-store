@@ -28,7 +28,7 @@ func (s *Server) uploadHandler(w http.ResponseWriter, r *http.Request) {
 	mf, _, err := r.FormFile("asciicast")
 	if err != nil {
 		hasWriteError = true
-		respondErr(err, w, "file read failed", http.StatusInternalServerError)
+		respondErr(err, w, "file read failed", http.StatusBadRequest)
 		return
 	}
 	defer mf.Close()
