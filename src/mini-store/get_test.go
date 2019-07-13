@@ -19,7 +19,7 @@ var (
 	testUUID      = "e26e4c57-7bb1-4969-947b-4ee615758d70"
 )
 
-func TestInputParams(t *testing.T) {
+func TestGetHandler(t *testing.T) {
 	bucket := createMemBucketWithFile(t)
 	defer bucket.Close()
 
