@@ -12,7 +12,7 @@ import (
 	_ "gocloud.dev/blob/memblob"
 	_ "gocloud.dev/blob/s3blob"
 
-	"github.com/gerifield/mini-asciinema-store/src/mini-store"
+	ministore "github.com/gerifield/mini-asciinema-store/src/mini-store"
 )
 
 func main() {
@@ -24,6 +24,8 @@ func main() {
 	https := flag.Bool("https", false, "HTTPS enable")
 	httpsCert := flag.String("httpsCert", "server.crt", "HTTPS cert")
 	httpsPrivateKey := flag.String("httpsPrivateKey", "server.key", "HTTPS private key")
+
+	authFile := flag.String("authFile", "", "Authenticated tokens in a file (one token per line)")
 	flag.Parse()
 
 	bucket, err := blob.OpenBucket(context.Background(), *uploadBucket)
@@ -33,7 +35,7 @@ func main() {
 	}
 	defer bucket.Close()
 
-	srv := ministore.New(*serverBaseURL, bucket)
+	srv := ministore.New(*serverBaseURL, bucket, *authFile)
 
 	if *https {
 		err = http.ListenAndServeTLS(*listenAddr, *httpsCert, *httpsPrivateKey, srv.Routes())
