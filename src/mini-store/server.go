@@ -39,6 +39,7 @@ func (s *Server) Routes() http.Handler {
 		}
 		mux.Use(authMiddleware(tokens))
 	}
+	mux.Use(simpleLogMiddlware)
 
 	mux.Post("/api/asciicasts", s.uploadHandler)
 	mux.Get("/a/{id}", s.getHandler)
@@ -83,6 +84,13 @@ func authMiddleware(tokens []string) func(next http.Handler) http.Handler {
 			respondErr(nil, w, "invalid token", http.StatusUnauthorized)
 		})
 	}
+}
+
+func simpleLogMiddlware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.Method, r.RequestURI)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func respondErr(err error, w http.ResponseWriter, errorStr string, code int) {
