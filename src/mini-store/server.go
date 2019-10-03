@@ -39,7 +39,7 @@ func (s *Server) Routes() http.Handler {
 		}
 		mux.Use(authMiddleware(tokens))
 	}
-	mux.Use(simpleLogMiddlware)
+	mux.Use(simpleLogMiddleware)
 
 	mux.Post("/api/asciicasts", s.uploadHandler)
 	mux.Get("/a/{id}", s.getHandler)
@@ -86,7 +86,7 @@ func authMiddleware(tokens []string) func(next http.Handler) http.Handler {
 	}
 }
 
-func simpleLogMiddlware(next http.Handler) http.Handler {
+func simpleLogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.Method, r.RequestURI)
 		next.ServeHTTP(w, r)
