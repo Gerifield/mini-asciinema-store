@@ -76,6 +76,7 @@ func authMiddleware(tokens []string) func(next http.Handler) http.Handler {
 
 			for _, t := range tokens {
 				if t == pass {
+					log.Println("user authenticated with token", t)
 					next.ServeHTTP(w, r)
 					return
 				}
