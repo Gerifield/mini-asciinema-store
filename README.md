@@ -5,6 +5,8 @@ Small server for store asciinema recordings
 # Usage
 
 ```
+  -authFile string
+    	Authenticated tokens in a file (one token per line)
   -https
     	HTTPS enable
   -httpsCert string
@@ -40,3 +42,19 @@ If you'd like to use a folder to store the uploads, just create one then set the
 `mini-asciinema-store -uploadBucket="file://$(pwd)/uploads"`
 
 The server uses the https://gocloud.dev/howto/blob/ driver for the storage.
+
+## Authentication
+
+You could use a simple text file with one token per line to allow only certain users to upload.
+Create a new file and put the client's install ID in that.
+
+You could find the install ID by default here: `~/.config/asciinema/install-id`
+
+Example:
+
+```
+echo "<my install id>" > authFile.txt
+go run src/cmd/server/server.go -uploadBucket="file://$(pwd)/uploads" -authFile authFile.txt
+```
+
+This will set the upload target to the `uploads` folder in this directory and set the `authFile.txt`.
