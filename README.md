@@ -9,6 +9,7 @@ Install Go on your system and clone the repository:
 git clone https://github.com/Gerifield/mini-asciinema-store.git
 cd mini-asciinema-store
 go build -o mini-asciinema-store src/cmd/server/server.go
+```
 
 The you have your binary there. Just run it! :)
 
