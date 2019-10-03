@@ -1,7 +1,8 @@
 # mini-asciinema-store
+
 Small server for store asciinema recordings
 
-## Building
+## Building from source
 
 Install Go on your system and clone the repository:
 
@@ -12,6 +13,8 @@ go build -o mini-asciinema-store src/cmd/server/server.go
 ```
 
 The you have your binary there. Just run it! :)
+
+If you don't want to build from source, just grab a binary form the release page.
 
 ## Usage
 
