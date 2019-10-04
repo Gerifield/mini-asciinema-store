@@ -1,0 +1,58 @@
+# Once the file is complete and accurate (for your setup), copy it to
+# /etc/systemd/system/mini-asciinema-store.service and run the following
+# in order to start/enable the service itself. Should/Must be run as root
+#
+# systemctl daemon-reload
+# systemctl enable --now mini-asciinema-store
+#
+[Unit]
+Description=Mini Asciinema Store Server
+After=network.target
+# If proxying using nginx/httpd or other, you might want this value set
+#After=nginx.service
+#After=httpd.service
+
+[Service]
+Type=simple
+# Modify/uncomment as/if needed
+#User=root
+#Group=root
+
+# Make sure to modify the path of your mini-asciinema-store server binary
+# for the ExecStart command in the [Service] section of this file.
+ExecStart=/FULL/PATH/TO/SERVER_BINARY -authFile /PATH/TO/AUTHENTIFICATION/FILE
+
+# LISTEN ADDRESS/PORT:
+# If you desire to run using different addresse/port than default, edit
+# and add the following line to your ExecStart command as well.
+#	-listenAddr ":8080" -serverBaseURL "http://127.0.0.1:8080"
+
+# SSL/PROXY:
+# Either for use locally or as a public server, running behing a proxy is
+# the recommended method and thus, the ssl directived should be used in
+# the proxy server configurations rather than here. For convenience and in
+# the event that you wish to use https/ssl WITHOUT the use of a proxy, the
+# following options MUST be added to the ExecStart command as you normally
+# would running the binary standalone. edit and add the following line to
+# your ExecStart command as well.
+#	-https -httpsCert /PATH/TO/CERT.crt -httpsPrivateKey /PATH/TO/KEY.key
+
+# STORAGE METHOD:
+# Unless using default values, this MUST be customized and added to your
+# ExecStart line as well.
+#	-uploadBucket "file:///PATH/TO/STORAGE"
+
+# If you wish, for whatever reason, to increase priority for this service
+# uncomment and modify the following Nice value. Typical niceness numbers
+#Nice=-5
+
+# One could check for default values and use WorkingDirectory= value as
+# base for fetching files such as ssl cert and keys. Uncomment if needed.
+#WorkingDirectory=/PATH/TO/WORKING_DIRECTORY
+
+Restart=always
+RestartSec=10
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
