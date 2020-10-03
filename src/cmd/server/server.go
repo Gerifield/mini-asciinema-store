@@ -37,6 +37,8 @@ func main() {
 
 	srv := ministore.New(*serverBaseURL, bucket, *authFile)
 
+	log.Println("Started on", *listenAddr)
+
 	if *https {
 		err = http.ListenAndServeTLS(*listenAddr, *httpsCert, *httpsPrivateKey, srv.Routes())
 	} else {
