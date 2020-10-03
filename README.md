@@ -72,3 +72,13 @@ go run src/cmd/server/server.go -uploadBucket="file://$(pwd)/uploads" -authFile 
 ```
 
 This will set the upload target to the `uploads` folder in this directory and set the `authFile.txt`.
+
+## Build and run in docker
+
+It'll put the uploaded files in a `/uploads` folder in the root of the container.
+
+For a simple build and demostration you could use the following commands to build and start the server on your localhost port 8080:
+```
+$ docker build -t mini-store .
+$ docker run -p8080:8080 mini-store:latest
+```
