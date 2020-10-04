@@ -1,5 +1,7 @@
 # mini-asciinema-store
 
+[![Build Status](https://travis-ci.org/Gerifield/mini-asciinema-store.svg?branch=master)](https://travis-ci.org/Gerifield/mini-asciinema-store) [![Coverage Status](https://coveralls.io/repos/github/Gerifield/mini-asciinema-store/badge.svg)](https://coveralls.io/github/Gerifield/mini-asciinema-store)
+
 Small server for store asciinema recordings
 
 ## Building from source
