@@ -1,8 +1,11 @@
 package ministore
 
 import (
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -65,4 +68,22 @@ func TestAuthSuccess(t *testing.T) {
 	require.NoError(t, err)
 
 	checkResponse(t, resp, http.StatusNotFound, "404 page not found\n")
+}
+
+
+func TestReadTokens(t *testing.T) {
+	tmpfile, err := ioutil.TempFile("", "testFile")
+	if err != nil {
+		log.Fatal(err)
+	}
+	tmpfile.WriteString("testToken1\n\n\ntestToken2\n")
+
+	defer os.Remove(tmpfile.Name()) // clean up, don't forget the order
+	defer tmpfile.Close()
+
+	tokens, err := readTokens(tmpfile.Name())
+	require.NoError(t, err)
+
+	assert.Len(t, tokens, 2)
+	assert.Equal(t, []string{"testToken1", "testToken2"}, tokens)
 }
