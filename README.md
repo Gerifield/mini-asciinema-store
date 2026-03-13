@@ -1,84 +1,111 @@
 # mini-asciinema-store
 
-Small server for store asciinema recordings
+A minimalistic, lightweight server designed to store and serve [asciinema](https://asciinema.org/) recordings.
 
-## Building from source
+---
 
-Install Go on your system and clone the repository:
+## Features
+* **Simple & Fast:** Minimal setup required.
+* **Storage Agnostic:** Stores recordings locally, in-memory, or on AWS S3, powered by the [gocloud.dev blob driver](https://gocloud.dev/howto/blob/).
+* **Basic Authentication:** Supports token-based upload authentication out of the box.
+* **HTTPS Support:** Optional built-in TLS for secure communication.
+* **Containerized:** Ready-to-use Docker environment for effortless deployment.
 
-```
+---
+
+## Installation
+
+### Pre-compiled Binaries
+You can download pre-compiled binaries from the [Releases page](https://github.com/Gerifield/mini-asciinema-store/releases).
+
+### Building from Source
+
+Ensure you have **Go 1.25** or newer installed.
+
+```bash
 git clone https://github.com/Gerifield/mini-asciinema-store.git
 cd mini-asciinema-store
 go build -o mini-asciinema-store src/cmd/server/server.go
 ```
 
-The you have your binary there. Just run it! :)
+The compiled binary `mini-asciinema-store` will be ready to run in your directory.
 
-If you don't want to build from source, just grab a binary form the release page.
+### Docker
 
-## Usage
+You can easily build and run the server using Docker. The default container stores uploaded files in a `/uploads` folder in the root of the container.
 
+```bash
+docker build -t mini-store .
+docker run -p 8080:8080 -v $(pwd)/uploads:/uploads mini-store:latest
 ```
+
+---
+
+## Configuration and Usage
+
+Start the server using default settings or pass command-line flags.
+
+### Available Flags
+
+```text
   -authFile string
-    	Authenticated tokens in a file (one token per line)
+        Authenticated tokens in a file (one token per line)
   -https
-    	HTTPS enable
+        HTTPS enable
   -httpsCert string
-    	HTTPS cert (default "server.crt")
+        HTTPS cert (default "server.crt")
   -httpsPrivateKey string
-    	HTTPS private key (default "server.key")
+        HTTPS private key (default "server.key")
   -listenAddr string
-    	HTTP listening address (default ":8080")
+        HTTP listening address (default ":8080")
   -serverBaseURL string
-    	Base URL for the server (default "http://127.0.0.1:8080")
+        Base URL for the server (default "http://127.0.0.1:8080")
   -uploadBucket string
-    	Folder or bucket URL to store the uploaded files (supports: file, mem, s3) (default "file:///uploads/")
+        Folder or bucket URL to store the uploaded files (supports: file, mem, s3) (default "file:///uploads/")
 ```
 
-For using the server just edit your asciinema config file (or create one): `~/.config/asciinema/config`
+### Storage Configuration
 
-Then add the following config:
+To store uploads in a local directory, create the folder and set `-uploadBucket`:
 
+```bash
+mkdir uploads
+./mini-asciinema-store -uploadBucket="file://$(pwd)/uploads"
 ```
+
+*Note: The server leverages the [Go Cloud Development Kit (Blob)](https://gocloud.dev/howto/blob/) to support different storage providers.*
+
+---
+
+## Asciinema Client Configuration
+
+To use your self-hosted server with the `asciinema` CLI tool, update your `asciinema` configuration file (usually `~/.config/asciinema/config`) to point to your instance.
+
+```ini
 [api]
-
 ; API server URL, default: https://asciinema.org
-; If you run your own instance of asciinema-server then set its address here
-; It can also be overriden by setting ASCIINEMA_API_URL environment variable
+; Set this to the address of your mini-asciinema-store instance
 url = http://127.0.0.1:8080
 ```
+*(Replace `http://127.0.0.1:8080` with your actual server base URL)*
 
-(Change the URL to your base URL.)
+Alternatively, you can override the API URL directly using an environment variable when recording:
 
+```bash
+ASCIINEMA_API_URL=http://127.0.0.1:8080 asciinema rec
+```
 
-If you'd like to use a folder to store the uploads, just create one then set the uploadBucket at the start for example:
-
-`mini-asciinema-store -uploadBucket="file://$(pwd)/uploads"`
-
-The server uses the https://gocloud.dev/howto/blob/ driver for the storage.
+---
 
 ## Authentication
 
-You could use a simple text file with one token per line to allow only certain users to upload.
-Create a new file and put the client's install ID in that.
+You can restrict uploads to specific users by utilizing a simple token-based authentication mechanism.
 
-You could find the install ID by default here: `~/.config/asciinema/install-id`
+1. **Locate your install ID:** By default, `asciinema` generates a unique installation ID located at `~/.config/asciinema/install-id`.
+2. **Create an auth file:** Add the allowed install IDs (one per line) into a text file.
 
-Example:
-
-```
-echo "<my install id>" > authFile.txt
-go run src/cmd/server/server.go -uploadBucket="file://$(pwd)/uploads" -authFile authFile.txt
-```
-
-This will set the upload target to the `uploads` folder in this directory and set the `authFile.txt`.
-
-## Build and run in docker
-
-It'll put the uploaded files in a `/uploads` folder in the root of the container.
-
-For a simple build and demostration you could use the following commands to build and start the server on your localhost port 8080:
-```
-$ docker build -t mini-store .
-$ docker run -p8080:8080 mini-store:latest
+**Example:**
+```bash
+echo "<my_install_id>" > authFile.txt
+./mini-asciinema-store -uploadBucket="file://$(pwd)/uploads" -authFile authFile.txt
 ```
